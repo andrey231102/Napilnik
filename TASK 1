@@ -1,0 +1,101 @@
+using System;
+
+namespace Napilnik1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Player player = new Player(10);
+            Weapon weapon = new Weapon(5, 10);
+            Bot bot = new Bot(weapon);
+
+            bot.OnSeePlayer(player);
+        }
+    }
+
+    public class Weapon
+    {
+        private int _damage;
+        private int _ammo;
+
+        public Weapon(int damage, int ammo)
+        {
+            if (damage <= 0 || ammo <= 0)
+                throw new ArgumentOutOfRangeException();
+
+            _damage = damage;
+            _ammo = ammo;
+        }
+
+        private bool TryFire()
+        {
+            bool isLoaded;
+
+            if (_ammo > 0)
+                isLoaded = true;
+            else
+                isLoaded = false;
+
+            return isLoaded;
+        }
+
+        public void Fire(Player player)
+        {
+            if (TryFire())
+            {
+                player.TakeDamage(_damage);
+                _ammo --;
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
+    public class Player
+    {
+        private int _health;
+
+        public bool IsAlive { get; private set; }
+
+        public Player(int health)
+        {
+            if (health <= 0)
+            {
+                _health = 0;
+                IsAlive = false;
+            }
+            else
+            {
+                _health = health;
+                IsAlive = true;
+            }
+        }
+
+        public void TakeDamage(int damage)
+        {
+            if (_health>0)
+                _health -= damage;
+            else
+                IsAlive = false;
+        }
+    }
+
+    public class Bot
+    {
+        private Weapon _weapon;
+
+        public Bot(Weapon weapon)
+        {
+            _weapon = weapon;
+        }
+
+        public void OnSeePlayer(Player player)
+        {
+            if (player.IsAlive)
+                _weapon.Fire(player);
+        }
+    }
+}
